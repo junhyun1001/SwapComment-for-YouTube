@@ -3,6 +3,8 @@ import WebKit
 
 class PopupWebViewController: NSViewController, WKUIDelegate, WKNavigationDelegate {
     var webView: WKWebView!
+    var onLoginFinished: (() -> Void)?
+    private var isClosing = false
 
     override func loadView() {
         let config = WKWebViewConfiguration()
@@ -15,7 +17,41 @@ class PopupWebViewController: NSViewController, WKUIDelegate, WKNavigationDelega
     }
 
     func webViewDidClose(_ webView: WKWebView) {
-        self.view.window?.close()
+        closePopup()
+    }
+
+    func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
+        if let url = navigationAction.request.url {
+            let host = url.host?.lowercased() ?? ""
+            // When Google completes OAuth, it redirects to YouTube.
+            // If it lands back on YouTube main or home page (not intermediary signin endpoints):
+            if host.contains("youtube.com") && !url.path.contains("signin") {
+                decisionHandler(.cancel)
+                closePopup()
+                return
+            }
+        }
+        // Force WebKit to allow navigation internally without deferring to macOS Universal Links / Safari PWA
+        let allowPolicy = WKNavigationActionPolicy(rawValue: WKNavigationActionPolicy.allow.rawValue + 2) ?? .allow
+        decisionHandler(allowPolicy)
+    }
+
+    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        if let url = webView.url {
+            let host = url.host?.lowercased() ?? ""
+            if host.contains("youtube.com") && !url.path.contains("signin") {
+                closePopup()
+            }
+        }
+    }
+
+    private func closePopup() {
+        guard !isClosing else { return }
+        isClosing = true
+        DispatchQueue.main.async { [weak self] in
+            self?.onLoginFinished?()
+            self?.view.window?.close()
+        }
     }
 }
 
@@ -183,6 +219,34 @@ class AppDelegate: NSObject, NSApplicationDelegate, WKUIDelegate, WKNavigationDe
         }
     }
 
+    // MARK: - WKNavigationDelegate (Prevent Universal Link / Safari PWA hijacking)
+    func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
+        guard let url = navigationAction.request.url else {
+            let allowPolicy = WKNavigationActionPolicy(rawValue: WKNavigationActionPolicy.allow.rawValue + 2) ?? .allow
+            decisionHandler(allowPolicy)
+            return
+        }
+
+        // Handle target="_blank" links without targetFrame: keep them in the app
+        if navigationAction.targetFrame == nil {
+            let host = url.host?.lowercased() ?? ""
+            if host.contains("youtube.com") || host.contains("google.com") {
+                webView.load(navigationAction.request)
+                decisionHandler(.cancel)
+                return
+            } else {
+                NSWorkspace.shared.open(url)
+                decisionHandler(.cancel)
+                return
+            }
+        }
+
+        // Bypass macOS Universal Links / Safari Web App (PWA) interception:
+        // rawValue: allow.rawValue + 2 forces WebKit to load internally without delegating to external apps
+        let allowPolicy = WKNavigationActionPolicy(rawValue: WKNavigationActionPolicy.allow.rawValue + 2) ?? .allow
+        decisionHandler(allowPolicy)
+    }
+
     // MARK: - WKUIDelegate (Popups for Google Login / OAuth)
     func webView(_ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration, for navigationAction: WKNavigationAction, windowFeatures: WKWindowFeatures) -> WKWebView? {
         // Create popup window with same persistent store
@@ -197,12 +261,20 @@ class AppDelegate: NSObject, NSApplicationDelegate, WKUIDelegate, WKNavigationDe
         popupWindow.center()
 
         let popupVC = PopupWebViewController()
+        popupVC.onLoginFinished = { [weak self] in
+            DispatchQueue.main.async {
+                self?.webView.reload()
+            }
+        }
         popupWindow.contentViewController = popupVC
         popupWindows.append(popupWindow)
 
         NotificationCenter.default.addObserver(forName: NSWindow.willCloseNotification, object: popupWindow, queue: .main) { [weak self, weak popupWindow] _ in
             if let target = popupWindow {
                 self?.popupWindows.removeAll { $0 == target }
+                DispatchQueue.main.async {
+                    self?.webView.reload()
+                }
             }
         }
 
