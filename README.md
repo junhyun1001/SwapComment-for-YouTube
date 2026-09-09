@@ -11,7 +11,9 @@
 <p align="center">
   <a href="https://github.com/junhyun1001/SwapComment-for-YouTube/releases"><img src="https://img.shields.io/badge/platform-macOS%2013%2B-blue?style=flat-square&logo=apple" alt="macOS" /></a>
   <a href="https://github.com/junhyun1001/SwapComment-for-YouTube/releases"><img src="https://img.shields.io/badge/architecture-Universal%20(Apple%20Silicon%20%2B%20Intel)-orange?style=flat-square" alt="Universal Binary" /></a>
-  <a href="https://github.com/junhyun1001/SwapComment-for-YouTube/releases"><img src="https://img.shields.io/badge/release-v1.0.0-red?style=flat-square" alt="Release" /></a>
+  <a href="https://github.com/junhyun1001/SwapComment-for-YouTube/releases"><img src="https://img.shields.io/badge/release-v1.0.1-red?style=flat-square" alt="Release" /></a>
+  <a href="https://github.com/junhyun1001/SwapComment-for-YouTube/actions/workflows/codeql.yml"><img src="https://img.shields.io/github/actions/workflow/status/junhyun1001/SwapComment-for-YouTube/codeql.yml?branch=main&label=CodeQL&style=flat-square&logo=github" alt="CodeQL Status" /></a>
+  <a href="#security--privacy"><img src="https://img.shields.io/badge/privacy-Zero--Telemetry-brightgreen?style=flat-square&logo=shield" alt="Privacy" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green?style=flat-square" alt="License" /></a>
 </p>
 
@@ -154,6 +156,18 @@ rm -rf "~/Library/Saved Application State/com.junhyun.SwapCommentForYouTube.save
 * **Frameworks**: Cocoa (AppKit), WebKit (`WKWebView`)
 * **Injection**: Vanilla JavaScript (`MutationObserver`) & Custom CSS Grid Layout
 * **Build System**: Bash script compiling Universal Binary via `swiftc` and `lipo`
+
+---
+
+## Security & Privacy
+
+We take user privacy and system security seriously. Because **SwapComment for YouTube** is distributed outside the Mac App Store as free and open-source software, we guarantee safety through total transparency:
+
+* 🔒 **Zero Telemetry & Analytics**: SwapComment does not collect, log, track, or transmit any user data, watching history, or keystrokes. Everything runs strictly inside macOS's native `WKWebView`.
+* 🔑 **Direct Google Authentication**: All logins are processed directly through Google's official OAuth servers inside Apple WebKit. Your credentials are never intercepted, stored, or accessed by our app.
+* 🔎 **100% Open Source & Auditable**: The entire codebase is concise (~400 lines of Swift in [`Sources/main.swift`](Sources/main.swift)). Anyone can freely inspect, build, and verify the application from source.
+* 🤖 **Verified CI/CD Cloud Builds**: Releases are automatically compiled in clean macOS virtual machines by **GitHub Actions** directly from the public source code, preventing any local tampering.
+* 🛡️ **Cryptographic Checksums**: Every release artifact includes cryptographic `SHA256` checksums so you can independently verify that your download has not been modified.
 
 ---
 
