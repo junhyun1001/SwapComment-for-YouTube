@@ -73,6 +73,7 @@ If you prefer managing apps via Homebrew:
 
 ```bash
 brew tap junhyun1001/tap
+brew trust junhyun1001/tap
 brew install --cask swapcomment-for-youtube
 ```
 
