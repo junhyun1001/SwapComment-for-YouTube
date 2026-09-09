@@ -98,6 +98,44 @@ open "build/SwapComment for YouTube.app"
 
 ---
 
+## Usage
+
+Once installed, you can launch **SwapComment for YouTube** via:
+
+* **Spotlight**: Press <kbd>Cmd</kbd> + <kbd>Space</kbd>, type `SwapComment for YouTube`, and press <kbd>Enter</kbd>.
+* **Launchpad**: Click the **SwapComment for YouTube** icon.
+* **Terminal**:
+  ```bash
+  open -a "SwapComment for YouTube"
+  ```
+
+---
+
+## Uninstallation
+
+### If installed via Homebrew Cask
+
+```bash
+# Standard uninstall
+brew uninstall --cask swapcomment-for-youtube
+
+# Complete removal (including login sessions, cookies, and cache)
+brew zap --cask swapcomment-for-youtube
+```
+
+### If installed manually (Direct Download or Build from Source)
+
+```bash
+# 1. Remove the application from Applications folder
+rm -rf "/Applications/SwapComment for YouTube.app"
+
+# 2. (Optional) Remove persistent session data and cache
+rm -rf ~/Library/WebKit/com.junhyun.SwapCommentForYouTube
+rm -rf "~/Library/Saved Application State/com.junhyun.SwapCommentForYouTube.savedState"
+```
+
+---
+
 ## Tech Stack
 
 * **Language**: Swift
