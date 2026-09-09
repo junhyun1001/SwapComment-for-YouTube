@@ -1,0 +1,164 @@
+/* SwitchVideoToComment Custom Stylesheet */
+
+/* When on watch page and layout is swapped */
+body[data-yt-sidebar-comments="true"] #secondary {
+    min-width: 400px !important;
+    max-width: 480px !important;
+}
+
+body[data-yt-sidebar-comments="true"] #secondary #secondary-inner {
+    position: sticky !important;
+    top: 60px !important;
+    max-height: calc(100vh - 75px) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow-y: auto !important;
+    padding-right: 8px !important;
+}
+
+/* Custom modern scrollbar for comments sidebar */
+body[data-yt-sidebar-comments="true"] #secondary #secondary-inner::-webkit-scrollbar {
+    width: 6px !important;
+}
+
+body[data-yt-sidebar-comments="true"] #secondary #secondary-inner::-webkit-scrollbar-track {
+    background: transparent !important;
+}
+
+body[data-yt-sidebar-comments="true"] #secondary #secondary-inner::-webkit-scrollbar-thumb {
+    background: rgba(150, 150, 150, 0.4) !important;
+    border-radius: 3px !important;
+}
+
+body[data-yt-sidebar-comments="true"] #secondary #secondary-inner::-webkit-scrollbar-thumb:hover {
+    background: rgba(150, 150, 150, 0.7) !important;
+}
+
+/* Ensure comments fill the sidebar */
+body[data-yt-sidebar-comments="true"] #secondary #comments {
+    width: 100% !important;
+    margin-top: 0 !important;
+    padding: 0 !important;
+}
+
+/* Comments header styling in sidebar */
+body[data-yt-sidebar-comments="true"] #secondary #comments #header {
+    margin-bottom: 12px !important;
+}
+
+/* --- Related videos placed below the player --- */
+#below ytd-watch-next-secondary-results-renderer,
+#below #related {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-top: 24px !important;
+    padding-top: 16px !important;
+    border-top: 1px solid var(--yt-spec-10-percent-layer, rgba(255, 255, 255, 0.1)) !important;
+}
+
+#below ytd-watch-next-secondary-results-renderer #items,
+#below ytd-watch-next-secondary-results-renderer ytd-item-section-renderer {
+    width: 100% !important;
+    max-width: 100% !important;
+}
+
+/* Category filter chips (contents, recommendations, etc.) */
+#below yt-related-chip-cloud-renderer {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-bottom: 16px !important;
+}
+
+/* Responsive Grid for Recommended Videos */
+#below ytd-watch-next-secondary-results-renderer #items > ytd-item-section-renderer #contents,
+#below ytd-watch-next-secondary-results-renderer #contents,
+#below #related #contents {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)) !important;
+    gap: 20px 16px !important;
+    width: 100% !important;
+}
+
+/* Video item card layout (Home-feed style: thumbnail on top, details below) */
+#below ytd-compact-video-renderer {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+#below ytd-compact-video-renderer #dismissible {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+/* Thumbnail */
+#below ytd-compact-video-renderer ytd-thumbnail,
+#below ytd-compact-video-renderer #thumbnail {
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    aspect-ratio: 16 / 9 !important;
+    margin: 0 !important;
+    position: relative !important;
+    border-radius: 12px !important;
+    overflow: hidden !important;
+}
+
+#below ytd-compact-video-renderer ytd-thumbnail a,
+#below ytd-compact-video-renderer #thumbnail a,
+#below ytd-compact-video-renderer ytd-thumbnail img,
+#below ytd-compact-video-renderer #thumbnail img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    border-radius: 12px !important;
+}
+
+/* Details below thumbnail */
+#below ytd-compact-video-renderer .details {
+    width: 100% !important;
+    padding: 10px 0 0 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+#below ytd-compact-video-renderer #video-title {
+    font-size: 1.4rem !important;
+    line-height: 2rem !important;
+    font-weight: 500 !important;
+    max-height: 4rem !important;
+    line-clamp: 2 !important;
+    -webkit-line-clamp: 2 !important;
+    display: -webkit-box !important;
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: normal !important;
+    margin-bottom: 4px !important;
+}
+
+#below ytd-compact-video-renderer #channel-name,
+#below ytd-compact-video-renderer #metadata-line {
+    font-size: 1.2rem !important;
+    line-height: 1.8rem !important;
+    color: var(--yt-spec-text-secondary, #aaa) !important;
+}
+
+/* Shorts shelf and infinite scroll loader span full grid width */
+#below ytd-reel-shelf-renderer,
+#below ytd-continuation-item-renderer {
+    grid-column: 1 / -1 !important;
+    width: 100% !important;
+}
+
+#below ytd-continuation-item-renderer {
+    display: flex !important;
+    justify-content: center !important;
+    padding: 24px 0 !important;
+}
+
