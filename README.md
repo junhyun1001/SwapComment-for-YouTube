@@ -11,7 +11,6 @@
 <p align="center">
   <a href="https://github.com/junhyun1001/SwapComment-for-YouTube/releases"><img src="https://img.shields.io/badge/platform-macOS%2013%2B-blue?style=flat-square&logo=apple" alt="macOS" /></a>
   <a href="https://github.com/junhyun1001/SwapComment-for-YouTube/releases"><img src="https://img.shields.io/badge/architecture-Universal%20(Apple%20Silicon%20%2B%20Intel)-orange?style=flat-square" alt="Universal Binary" /></a>
-  <a href="https://github.com/junhyun1001/SwapComment-for-YouTube/releases"><img src="https://img.shields.io/badge/release-v1.0.1-red?style=flat-square" alt="Release" /></a>
   <a href="https://github.com/junhyun1001/SwapComment-for-YouTube/actions/workflows/codeql.yml"><img src="https://img.shields.io/github/actions/workflow/status/junhyun1001/SwapComment-for-YouTube/codeql.yml?branch=main&label=CodeQL&style=flat-square&logo=github" alt="CodeQL Status" /></a>
   <a href="#security--privacy"><img src="https://img.shields.io/badge/privacy-Zero--Telemetry-brightgreen?style=flat-square&logo=shield" alt="Privacy" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green?style=flat-square" alt="License" /></a>
