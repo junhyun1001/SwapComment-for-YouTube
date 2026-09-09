@@ -63,6 +63,8 @@ Unlike the default YouTube desktop experience that forces you to scroll past the
 > xattr -cr "/Applications/SwapComment for YouTube.app"
 > ```
 
+> **Note on Google Sign-in (Passkeys)**: If Google prompts you with a Passkey / Bluetooth verification screen during sign-in, click **"Try another way"** at the bottom and select **Password + 2-Step Verification** (e.g., Authenticator, SMS, or phone prompt). Embedded web views (`WKWebView`) cannot access system Bluetooth for cross-device passkeys due to macOS sandboxing. Once signed in, your session is saved persistently in macOS's native data store and will remain active across app restarts.
+
 ---
 
 ### Option 2: Homebrew Cask
