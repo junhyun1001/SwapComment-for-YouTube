@@ -52,10 +52,25 @@ Unlike the default YouTube desktop experience that forces you to scroll past the
 
 ## Installation
 
-### Option 1: Direct Download (Recommended)
+### Option 1: Homebrew Cask (Recommended)
 
-1. Download the latest `SwapComment-for-YouTube.zip` (or `.dmg`) from the **[Releases](https://github.com/junhyun1001/SwapComment-for-YouTube/releases)** page.
-2. Unzip the file and drag `SwapComment for YouTube.app` into your `/Applications` folder.
+The easiest way to install and stay updated:
+
+```bash
+# 1. Tap the repository & trust third-party cask
+brew tap junhyun1001/tap
+brew trust junhyun1001/tap
+
+# 2. Install the application
+brew install --cask swapcomment-for-youtube
+```
+
+---
+
+### Option 2: Direct Download
+
+1. Download the latest `SwapComment-for-YouTube.zip` from the **[Releases](https://github.com/junhyun1001/SwapComment-for-YouTube/releases)** page.
+2. Unzip the file and move `SwapComment for YouTube.app` into your `/Applications` folder.
 3. Open the app and enjoy!
 
 > **Note on macOS Gatekeeper**: Because the app is signed with an ad-hoc certificate, macOS may show an *"unidentified developer"* notice on first launch. Right-click `SwapComment for YouTube.app` and select **Open**, or run this command in Terminal:
@@ -64,18 +79,6 @@ Unlike the default YouTube desktop experience that forces you to scroll past the
 > ```
 
 > **Note on Google Sign-in (Passkeys)**: If Google prompts you with a Passkey / Bluetooth verification screen during sign-in, click **"Try another way"** at the bottom and select **Password + 2-Step Verification** (e.g., Authenticator, SMS, or phone prompt). Embedded web views (`WKWebView`) cannot access system Bluetooth for cross-device passkeys due to macOS sandboxing. Once signed in, your session is saved persistently in macOS's native data store and will remain active across app restarts.
-
----
-
-### Option 2: Homebrew Cask
-
-If you prefer managing apps via Homebrew:
-
-```bash
-brew tap junhyun1001/tap
-brew trust junhyun1001/tap
-brew install --cask swapcomment-for-youtube
-```
 
 ---
 
@@ -88,12 +91,13 @@ Requirements: macOS 13+ with Xcode Command Line Tools installed (`xcode-select -
 git clone https://github.com/junhyun1001/SwapComment-for-YouTube.git
 cd SwapComment-for-YouTube
 
-# 2. Build the application (Generates Universal Binary)
+# 2. Build the application (Compiles Universal Binary for Apple Silicon & Intel)
 chmod +x build.sh
 ./build.sh
 
-# 3. Launch the app
-open "build/SwapComment for YouTube.app"
+# 3. Install to /Applications (or run directly from build/)
+cp -R "build/SwapComment for YouTube.app" /Applications/
+open "/Applications/SwapComment for YouTube.app"
 ```
 
 ---
@@ -113,23 +117,29 @@ Once installed, you can launch **SwapComment for YouTube** via:
 
 ## Uninstallation
 
-### If installed via Homebrew Cask
+### Option 1: If installed via Homebrew Cask
 
 ```bash
-# Standard uninstall
+# Standard uninstall (removes the application)
 brew uninstall --cask swapcomment-for-youtube
 
-# Complete removal (including login sessions, cookies, and cache)
+# Complete uninstall (removes application, saved login sessions, cookies, and cache)
 brew zap --cask swapcomment-for-youtube
 ```
 
-### If installed manually (Direct Download or Build from Source)
+### Option 2: If installed manually (Direct Download or Build from Source)
 
 ```bash
-# 1. Remove the application from Applications folder
+# 1. Quit the application if running
+pkill -x "SwapComment for YouTube" || true
+
+# 2. Remove the app from Applications
 rm -rf "/Applications/SwapComment for YouTube.app"
 
-# 2. (Optional) Remove persistent session data and cache
+# 3. (If built from source) Remove the local build directory to clear Spotlight index
+rm -rf build/
+
+# 4. (Optional) Remove persistent session data, cookies, and cache
 rm -rf ~/Library/WebKit/com.junhyun.SwapCommentForYouTube
 rm -rf "~/Library/Saved Application State/com.junhyun.SwapCommentForYouTube.savedState"
 ```
