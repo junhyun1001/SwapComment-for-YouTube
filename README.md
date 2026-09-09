@@ -52,6 +52,15 @@ Unlike the default YouTube desktop experience that forces you to scroll past the
 
 ## Installation
 
+> **Note on macOS Gatekeeper**: Because the app is signed with an ad-hoc certificate, macOS may show an *"unidentified developer"* or *"cannot verify"* dialog on first launch. You can allow it via:
+> - **System Settings**: Go to **System Settings ➔ Privacy & Security ➔ Security**, and click **"Open Anyway"** next to the SwapComment notice.
+> - **Or via Terminal**:
+>   ```bash
+>   sudo xattr -rd com.apple.quarantine "/Applications/SwapComment for YouTube.app"
+>   ```
+
+> **Note on Google Sign-in (Passkeys)**: If Google prompts you with a Passkey / Bluetooth verification screen during sign-in, click **"Try another way"** at the bottom and select **Password + 2-Step Verification** (e.g., Authenticator, SMS, or phone prompt). Embedded web views (`WKWebView`) cannot access system Bluetooth for cross-device passkeys due to macOS sandboxing. Once signed in, your session is saved persistently in macOS's native data store and will remain active across app restarts.
+
 ### Option 1: Homebrew Cask (Recommended)
 
 The easiest way to install and stay updated:
@@ -72,13 +81,6 @@ brew install --cask swapcomment-for-youtube
 1. Download the latest `SwapComment-for-YouTube.zip` from the **[Releases](https://github.com/junhyun1001/SwapComment-for-YouTube/releases)** page.
 2. Unzip the file and move `SwapComment for YouTube.app` into your `/Applications` folder.
 3. Open the app and enjoy!
-
-> **Note on macOS Gatekeeper**: Because the app is signed with an ad-hoc certificate, macOS may show an *"unidentified developer"* notice on first launch. Right-click `SwapComment for YouTube.app` and select **Open**, or run this command in Terminal:
-> ```bash
-> xattr -cr "/Applications/SwapComment for YouTube.app"
-> ```
-
-> **Note on Google Sign-in (Passkeys)**: If Google prompts you with a Passkey / Bluetooth verification screen during sign-in, click **"Try another way"** at the bottom and select **Password + 2-Step Verification** (e.g., Authenticator, SMS, or phone prompt). Embedded web views (`WKWebView`) cannot access system Bluetooth for cross-device passkeys due to macOS sandboxing. Once signed in, your session is saved persistently in macOS's native data store and will remain active across app restarts.
 
 ---
 
@@ -124,7 +126,7 @@ Once installed, you can launch **SwapComment for YouTube** via:
 brew uninstall --cask swapcomment-for-youtube
 
 # Complete uninstall (removes application, saved login sessions, cookies, and cache)
-brew zap --cask swapcomment-for-youtube
+brew uninstall --zap --cask swapcomment-for-youtube
 ```
 
 ### Option 2: If installed manually (Direct Download or Build from Source)
