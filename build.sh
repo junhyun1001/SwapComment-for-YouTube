@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-APP_NAME="YouTube"
+APP_NAME="SwapComment for YouTube"
 PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BUILD_DIR="$PROJECT_DIR/build"
 APP_BUNDLE="$BUILD_DIR/$APP_NAME.app"
@@ -36,9 +36,6 @@ rm -rf "$TEMP_BUILD"
 
 echo "[3/5] Copying Info.plist and Resources..."
 cp "$PROJECT_DIR/Info.plist" "$CONTENTS/Info.plist"
-
-# Update executable name in Info.plist to match APP_NAME
-sed -i '' "s/<string>SwitchVideoToComment<\/string>/<string>$APP_NAME<\/string>/g" "$CONTENTS/Info.plist"
 
 # Copy resources
 cp "$PROJECT_DIR/Resources/style.css" "$RESOURCES/style.css"

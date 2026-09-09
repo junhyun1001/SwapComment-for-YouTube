@@ -9,9 +9,9 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/junhyun/SwitchVideoToComment/releases"><img src="https://img.shields.io/badge/platform-macOS%2013%2B-blue?style=flat-square&logo=apple" alt="macOS" /></a>
-  <a href="https://github.com/junhyun/SwitchVideoToComment/releases"><img src="https://img.shields.io/badge/architecture-Universal%20(Apple%20Silicon%20%2B%20Intel)-orange?style=flat-square" alt="Universal Binary" /></a>
-  <a href="https://github.com/junhyun/SwitchVideoToComment/releases"><img src="https://img.shields.io/badge/release-v1.0.0-red?style=flat-square" alt="Release" /></a>
+  <a href="https://github.com/junhyun1001/SwapComment-for-YouTube/releases"><img src="https://img.shields.io/badge/platform-macOS%2013%2B-blue?style=flat-square&logo=apple" alt="macOS" /></a>
+  <a href="https://github.com/junhyun1001/SwapComment-for-YouTube/releases"><img src="https://img.shields.io/badge/architecture-Universal%20(Apple%20Silicon%20%2B%20Intel)-orange?style=flat-square" alt="Universal Binary" /></a>
+  <a href="https://github.com/junhyun1001/SwapComment-for-YouTube/releases"><img src="https://img.shields.io/badge/release-v1.0.0-red?style=flat-square" alt="Release" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green?style=flat-square" alt="License" /></a>
 </p>
 
@@ -26,7 +26,7 @@ Unlike the default YouTube desktop experience that forces you to scroll past the
 * **Recommended videos** move under the player and adapt into a **responsive, multi-column grid**.
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/junhyun/SwitchVideoToComment/main/docs/demo.png" alt="SwapComment Demo Screenshot" width="850" />
+  <img src="https://raw.githubusercontent.com/junhyun1001/SwapComment-for-YouTube/main/docs/demo.png" alt="SwapComment Demo Screenshot" width="850" />
 </p>
 
 ---
@@ -54,13 +54,13 @@ Unlike the default YouTube desktop experience that forces you to scroll past the
 
 ### Option 1: Direct Download (Recommended)
 
-1. Download the latest `YouTube.zip` (or `.dmg`) from the **[Releases](https://github.com/junhyun/SwitchVideoToComment/releases)** page.
-2. Unzip the file and drag `YouTube.app` into your `/Applications` folder.
+1. Download the latest `SwapComment-for-YouTube.zip` (or `.dmg`) from the **[Releases](https://github.com/junhyun1001/SwapComment-for-YouTube/releases)** page.
+2. Unzip the file and drag `SwapComment for YouTube.app` into your `/Applications` folder.
 3. Open the app and enjoy!
 
-> **Note on macOS Gatekeeper**: Because the app is signed with an ad-hoc certificate, macOS may show an *"unidentified developer"* notice on first launch. Right-click `YouTube.app` and select **Open**, or run this command in Terminal:
+> **Note on macOS Gatekeeper**: Because the app is signed with an ad-hoc certificate, macOS may show an *"unidentified developer"* notice on first launch. Right-click `SwapComment for YouTube.app` and select **Open**, or run this command in Terminal:
 > ```bash
-> xattr -cr /Applications/YouTube.app
+> xattr -cr "/Applications/SwapComment for YouTube.app"
 > ```
 
 ---
@@ -70,8 +70,8 @@ Unlike the default YouTube desktop experience that forces you to scroll past the
 If you prefer managing apps via Homebrew:
 
 ```bash
-brew tap junhyun/tap
-brew install --cask swapcomment
+brew tap junhyun1001/tap
+brew install --cask swapcomment-for-youtube
 ```
 
 ---
@@ -82,15 +82,15 @@ Requirements: macOS 13+ with Xcode Command Line Tools installed (`xcode-select -
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/junhyun/SwitchVideoToComment.git
-cd SwitchVideoToComment
+git clone https://github.com/junhyun1001/SwapComment-for-YouTube.git
+cd SwapComment-for-YouTube
 
 # 2. Build the application (Generates Universal Binary)
 chmod +x build.sh
 ./build.sh
 
 # 3. Launch the app
-open build/YouTube.app
+open "build/SwapComment for YouTube.app"
 ```
 
 ---

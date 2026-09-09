@@ -1,4 +1,4 @@
-// SwitchVideoToComment - Swap YouTube Comments and Recommended Videos
+// SwapComment for YouTube - Swap YouTube Comments and Recommended Videos
 (function() {
     'use strict';
 
@@ -67,7 +67,7 @@
             }, 1000);
 
         } catch (e) {
-            console.error('[SwitchVideoToComment] Error swapping layout:', e);
+            console.error('[SwapComment for YouTube] Error swapping layout:', e);
         } finally {
             isSwapping = false;
         }

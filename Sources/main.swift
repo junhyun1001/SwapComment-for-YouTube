@@ -75,13 +75,13 @@ class AppDelegate: NSObject, NSApplicationDelegate, WKUIDelegate, WKNavigationDe
             defer: false
         )
 
-        window.title = "YouTube"
+        window.title = "SwapComment for YouTube"
         window.titleVisibility = .hidden
         window.titlebarSeparatorStyle = .none
         window.backgroundColor = NSColor(red: 15/255, green: 15/255, blue: 15/255, alpha: 1.0) // YouTube dark bg
         window.minSize = NSSize(width: 900, height: 550)
         window.isReleasedWhenClosed = false
-        window.setFrameAutosaveName("YouTubeMainWindow")
+        window.setFrameAutosaveName("SwapCommentMainWindow")
 
         windowController = MainWindowController(window: window)
         window.makeKeyAndOrderFront(nil)
@@ -223,15 +223,15 @@ class AppDelegate: NSObject, NSApplicationDelegate, WKUIDelegate, WKNavigationDe
         // 1. Application Menu
         let appMenuItem = NSMenuItem()
         let appMenu = NSMenu()
-        appMenu.addItem(withTitle: "About YouTube", action: #selector(NSApplication.orderFrontStandardAboutPanel(_:)), keyEquivalent: "")
+        appMenu.addItem(withTitle: "About SwapComment for YouTube", action: #selector(NSApplication.orderFrontStandardAboutPanel(_:)), keyEquivalent: "")
         appMenu.addItem(NSMenuItem.separator())
-        appMenu.addItem(withTitle: "Hide YouTube", action: #selector(NSApplication.hide(_:)), keyEquivalent: "h")
+        appMenu.addItem(withTitle: "Hide SwapComment for YouTube", action: #selector(NSApplication.hide(_:)), keyEquivalent: "h")
         let hideOthersItem = NSMenuItem(title: "Hide Others", action: #selector(NSApplication.hideOtherApplications(_:)), keyEquivalent: "h")
         hideOthersItem.keyEquivalentModifierMask = [.command, .option]
         appMenu.addItem(hideOthersItem)
         appMenu.addItem(withTitle: "Show All", action: #selector(NSApplication.unhideAllApplications(_:)), keyEquivalent: "")
         appMenu.addItem(NSMenuItem.separator())
-        appMenu.addItem(withTitle: "Quit YouTube", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
+        appMenu.addItem(withTitle: "Quit SwapComment for YouTube", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
         appMenuItem.submenu = appMenu
         mainMenu.addItem(appMenuItem)
 
