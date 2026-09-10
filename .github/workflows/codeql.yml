@@ -2,7 +2,7 @@ name: "CodeQL Security Analysis"
 
 on:
   schedule:
-    - cron: '0 15 * * *' # 매일 자정 (KST 00:00 / UTC 15:00) 정기 보안 분석
+    - cron: '0 21 * * *' # 매일 한국 시간 오전 06:00 (KST / UTC 21:00) 정기 보안 분석
   workflow_dispatch:
 
 jobs:
