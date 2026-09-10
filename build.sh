@@ -42,6 +42,13 @@ rm -rf "$TEMP_BUILD"
 echo "[3/5] Copying Info.plist and Resources..."
 cp "$PROJECT_DIR/Info.plist" "$CONTENTS/Info.plist"
 
+# Auto-detect or inject version if provided via VERSION env or exact git tag
+APP_VERSION="${VERSION:-$(git describe --tags --exact-match 2>/dev/null | sed 's/^v//' || true)}"
+if [ -n "$APP_VERSION" ]; then
+    echo "  -> Setting app version to $APP_VERSION in Info.plist..."
+    /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString $APP_VERSION" "$CONTENTS/Info.plist"
+fi
+
 # Copy resources
 cp "$PROJECT_DIR/Resources/style.css" "$RESOURCES/style.css"
 cp "$PROJECT_DIR/Resources/swapLayout.js" "$RESOURCES/swapLayout.js"

@@ -19,6 +19,10 @@ jobs:
       - name: Build Universal Binary
         run: |
           chmod +x build.sh
+          if [[ "$GITHUB_REF_NAME" =~ ^v[0-9] ]]; then
+            export VERSION="${GITHUB_REF_NAME#v}"
+            echo "Building with release version: $VERSION"
+          fi
           ./build.sh
 
       - name: Package Application
@@ -28,7 +32,7 @@ jobs:
           zip -r -y SwapComment-for-YouTube.zip "SwapComment for YouTube.app"
           SHA256=$(shasum -a 256 SwapComment-for-YouTube.zip | awk '{print $1}')
           echo "sha256=$SHA256" >> $GITHUB_OUTPUT
-          VERSION="${GITHUB_REF_NAME#v}"
+          VERSION=$(/usr/libexec/PlistBuddy -c "Print :CFBundleShortVersionString" "SwapComment for YouTube.app/Contents/Info.plist")
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Create GitHub Release
