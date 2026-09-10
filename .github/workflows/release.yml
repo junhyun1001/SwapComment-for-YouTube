@@ -36,6 +36,17 @@ jobs:
         with:
           files: build/SwapComment-for-YouTube.zip
           generate_release_notes: true
+          append_body: true
+          body: |
+            ## 📦 Installation & Update
+
+            ```bash
+            # Upgrade via Homebrew
+            brew upgrade --cask swapcomment-for-youtube
+
+            # First-time install
+            brew install --cask junhyun1001/tap/swapcomment-for-youtube
+            ```
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
