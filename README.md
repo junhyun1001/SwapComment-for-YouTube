@@ -27,7 +27,7 @@ Unlike the default YouTube desktop experience that forces you to scroll past the
 * **Recommended videos** move under the player and adapt into a **responsive, multi-column grid**.
 
 <p align="center">
-  <img src="docs/demo.png" alt="SwapComment Demo Screenshot" width="850" />
+  <img src="https://raw.githubusercontent.com/junhyun1001/SwapComment-for-YouTube/assets/demo.png" alt="SwapComment Demo Screenshot" width="850" />
 </p>
 
 ---
