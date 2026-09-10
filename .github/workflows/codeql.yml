@@ -1,6 +1,14 @@
 name: "CodeQL Security Analysis"
 
 on:
+  pull_request:
+    branches: [ "main" ]
+    paths:
+      - 'Sources/**'
+      - 'Resources/**'
+      - 'Info.plist'
+      - 'build.sh'
+      - '.github/workflows/codeql.yml'
   schedule:
     - cron: '0 21 * * *' # 매일 한국 시간 오전 06:00 (KST / UTC 21:00) 정기 보안 분석
   workflow_dispatch:
