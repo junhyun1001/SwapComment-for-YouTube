@@ -1,10 +1,6 @@
 # SwapComment for YouTube
 
 <p align="center">
-  <img src="Resources/AppIcon.icns" width="128" height="128" alt="SwapComment App Icon" />
-</p>
-
-<p align="center">
   <strong>A lightweight, native macOS client that brings YouTube comments to the sidebar so you can read and watch simultaneously.</strong>
 </p>
 
