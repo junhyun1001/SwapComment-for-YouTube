@@ -3,10 +3,23 @@ name: "CodeQL Security Analysis"
 on:
   push:
     branches: [ "main" ]
+    paths:
+      - 'Sources/**'
+      - 'Resources/**'
+      - 'Info.plist'
+      - 'build.sh'
+      - '.github/workflows/codeql.yml'
   pull_request:
     branches: [ "main" ]
+    paths:
+      - 'Sources/**'
+      - 'Resources/**'
+      - 'Info.plist'
+      - 'build.sh'
+      - '.github/workflows/codeql.yml'
   schedule:
     - cron: '30 1 * * 1'
+  workflow_dispatch:
 
 jobs:
   analyze:
