@@ -16,17 +16,22 @@ mkdir -p "$MACOS" "$RESOURCES"
 echo "[2/5] Compiling Swift source code (Universal: Apple Silicon + Intel)..."
 TEMP_BUILD="$BUILD_DIR/temp"
 mkdir -p "$TEMP_BUILD"
+# Find all Swift source files in Sources directory
+SWIFT_FILES=()
+while IFS= read -r -d '' file; do
+    SWIFT_FILES+=("$file")
+done < <(find "$PROJECT_DIR/Sources" -name "*.swift" -type f -print0 | sort -z)
 
 swiftc -O \
     -target arm64-apple-macos13.0 \
-    "$PROJECT_DIR/Sources/main.swift" \
+    "${SWIFT_FILES[@]}" \
     -o "$TEMP_BUILD/${APP_NAME}_arm64" \
     -framework Cocoa \
     -framework WebKit
 
 swiftc -O \
     -target x86_64-apple-macos13.0 \
-    "$PROJECT_DIR/Sources/main.swift" \
+    "${SWIFT_FILES[@]}" \
     -o "$TEMP_BUILD/${APP_NAME}_x86_64" \
     -framework Cocoa \
     -framework WebKit
