@@ -2,8 +2,14 @@ import Cocoa
 
 class MainWindowController: NSWindowController, NSWindowDelegate {
     let mainViewController = MainViewController()
+    var onWindowWillClose: ((MainWindowController) -> Void)?
 
-    convenience init() {
+    var groupId: String {
+        get { window?.tabbingIdentifier ?? "" }
+        set { window?.tabbingIdentifier = newValue }
+    }
+
+    convenience init(groupId: String) {
         let screenSize = NSScreen.main?.visibleFrame.size ?? CGSize(width: 1440, height: 900)
         let defaultWidth: CGFloat = min(1360, screenSize.width * 0.85)
         let defaultHeight: CGFloat = min(880, screenSize.height * 0.85)
@@ -28,15 +34,20 @@ class MainWindowController: NSWindowController, NSWindowDelegate {
         window.backgroundColor = NSColor(red: 15/255, green: 15/255, blue: 15/255, alpha: 1.0)
         window.minSize = NSSize(width: 900, height: 550)
         window.isReleasedWhenClosed = false
-        window.setFrameAutosaveName("SwapCommentMainWindow")
+        window.tabbingIdentifier = groupId
+        window.tabbingMode = .preferred
 
         self.init(window: window)
         window.delegate = self
         window.contentViewController = mainViewController
     }
 
-    func windowShouldClose(_ sender: NSWindow) -> Bool {
-        NSApplication.shared.terminate(nil)
-        return true
+    func windowWillClose(_ notification: Notification) {
+        onWindowWillClose?(self)
+    }
+
+    // Handle "+" button on macOS native tab bar
+    override func newWindowForTab(_ sender: Any?) {
+        (NSApplication.shared.delegate as? AppDelegate)?.newTab()
     }
 }

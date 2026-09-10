@@ -1,5 +1,10 @@
 import Cocoa
 
+@objc protocol AppMenuActionDelegate: AnyObject {
+    func newWindow()
+    func newTab()
+}
+
 @objc protocol ViewMenuActionDelegate: AnyObject {
     func reloadPage()
     func goBack()
@@ -11,7 +16,7 @@ import Cocoa
 }
 
 final class MenuBuilder {
-    static func build(target: ViewMenuActionDelegate?) -> NSMenu {
+    static func build(appDelegate: (AppMenuActionDelegate & ViewMenuActionDelegate)?) -> NSMenu {
         let mainMenu = NSMenu()
 
         // 1. Application Menu
@@ -29,9 +34,18 @@ final class MenuBuilder {
         appMenuItem.submenu = appMenu
         mainMenu.addItem(appMenuItem)
 
-        // 2. File Menu (Close Window)
+        // 2. File Menu (New Window, New Tab, Close Window)
         let fileMenuItem = NSMenuItem()
         let fileMenu = NSMenu(title: "File")
+
+        let newWindowItem = fileMenu.addItem(withTitle: "New Window", action: #selector(AppMenuActionDelegate.newWindow), keyEquivalent: "n")
+        newWindowItem.target = appDelegate
+
+        let newTabItem = fileMenu.addItem(withTitle: "New Tab", action: #selector(AppMenuActionDelegate.newTab), keyEquivalent: "t")
+        newTabItem.target = appDelegate
+
+        fileMenu.addItem(NSMenuItem.separator())
+
         fileMenu.addItem(withTitle: "Close Window", action: #selector(NSWindow.performClose(_:)), keyEquivalent: "w")
         fileMenuItem.submenu = fileMenu
         mainMenu.addItem(fileMenuItem)
@@ -56,30 +70,30 @@ final class MenuBuilder {
         let viewMenu = NSMenu(title: "View")
 
         let reloadItem = viewMenu.addItem(withTitle: "Reload", action: #selector(ViewMenuActionDelegate.reloadPage), keyEquivalent: "r")
-        reloadItem.target = target
+        reloadItem.target = appDelegate
 
         let backItem = viewMenu.addItem(withTitle: "Back", action: #selector(ViewMenuActionDelegate.goBack), keyEquivalent: "[")
-        backItem.target = target
+        backItem.target = appDelegate
 
         let forwardItem = viewMenu.addItem(withTitle: "Forward", action: #selector(ViewMenuActionDelegate.goForward), keyEquivalent: "]")
-        forwardItem.target = target
+        forwardItem.target = appDelegate
 
         viewMenu.addItem(NSMenuItem.separator())
 
         let actualSizeItem = viewMenu.addItem(withTitle: "Actual Size", action: #selector(ViewMenuActionDelegate.zoomActual), keyEquivalent: "0")
-        actualSizeItem.target = target
+        actualSizeItem.target = appDelegate
 
         let zoomInItem = viewMenu.addItem(withTitle: "Zoom In", action: #selector(ViewMenuActionDelegate.zoomIn), keyEquivalent: "+")
-        zoomInItem.target = target
+        zoomInItem.target = appDelegate
 
         let zoomOutItem = viewMenu.addItem(withTitle: "Zoom Out", action: #selector(ViewMenuActionDelegate.zoomOut), keyEquivalent: "-")
-        zoomOutItem.target = target
+        zoomOutItem.target = appDelegate
 
         viewMenu.addItem(NSMenuItem.separator())
 
         let fullScreenItem = NSMenuItem(title: "Toggle Full Screen", action: #selector(ViewMenuActionDelegate.toggleFullScreen), keyEquivalent: "f")
         fullScreenItem.keyEquivalentModifierMask = [.command, .control]
-        fullScreenItem.target = target
+        fullScreenItem.target = appDelegate
         viewMenu.addItem(fullScreenItem)
 
         viewMenuItem.submenu = viewMenu
