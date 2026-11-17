@@ -1,6 +1,18 @@
 import Foundation
 import WebKit
 
+private final class WeakScriptMessageHandler: NSObject, WKScriptMessageHandler {
+    private weak var delegate: WKScriptMessageHandler?
+
+    init(delegate: WKScriptMessageHandler) {
+        self.delegate = delegate
+    }
+
+    func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
+        delegate?.userContentController(userContentController, didReceive: message)
+    }
+}
+
 final class WebScriptManager {
     static let themeChangedMessageName = "themeChanged"
 
@@ -44,6 +56,10 @@ final class WebScriptManager {
         })();
         """
         userContentController.addUserScript(WKUserScript(source: themeDetectScript, injectionTime: .atDocumentEnd, forMainFrameOnly: true))
-        userContentController.add(handler, name: themeChangedMessageName)
+        userContentController.add(WeakScriptMessageHandler(delegate: handler), name: themeChangedMessageName)
+    }
+
+    static func cleanup(userContentController: WKUserContentController) {
+        userContentController.removeScriptMessageHandler(forName: themeChangedMessageName)
     }
 }

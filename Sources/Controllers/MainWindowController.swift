@@ -10,13 +10,13 @@ class MainWindowController: NSWindowController, NSWindowDelegate {
     }
 
     convenience init(groupId: String) {
-        let screenSize = NSScreen.main?.visibleFrame.size ?? CGSize(width: 1440, height: 900)
-        let defaultWidth: CGFloat = min(1360, screenSize.width * 0.85)
-        let defaultHeight: CGFloat = min(880, screenSize.height * 0.85)
+        let visibleFrame = NSScreen.main?.visibleFrame ?? NSRect(x: 0, y: 0, width: 1440, height: 900)
+        let defaultWidth: CGFloat = min(1360, visibleFrame.width * 0.85)
+        let defaultHeight: CGFloat = min(880, visibleFrame.height * 0.85)
 
         let windowRect = NSRect(
-            x: (screenSize.width - defaultWidth) / 2,
-            y: (screenSize.height - defaultHeight) / 2,
+            x: visibleFrame.origin.x + (visibleFrame.width - defaultWidth) / 2,
+            y: visibleFrame.origin.y + (visibleFrame.height - defaultHeight) / 2,
             width: defaultWidth,
             height: defaultHeight
         )

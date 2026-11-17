@@ -4,6 +4,18 @@ import WebKit
 class MainViewController: NSViewController, WKUIDelegate, WKNavigationDelegate, WKScriptMessageHandler, ViewMenuActionDelegate {
     var webView: WKWebView!
     var popupWindows: [NSWindow] = []
+    private var popupWindowObservers: [ObjectIdentifier: NSObjectProtocol] = [:]
+    private var lastWebContentCrashDate: Date?
+
+    deinit {
+        for token in popupWindowObservers.values {
+            NotificationCenter.default.removeObserver(token)
+        }
+        if isViewLoaded {
+            webView.stopLoading()
+            WebScriptManager.cleanup(userContentController: webView.configuration.userContentController)
+        }
+    }
 
     override func loadView() {
         let config = WKWebViewConfiguration()
@@ -54,35 +66,88 @@ class MainViewController: NSViewController, WKUIDelegate, WKNavigationDelegate, 
         }
     }
 
+    // MARK: - Link Helpers
+    private func extractYouTubeRedirectTarget(from url: URL) -> URL? {
+        let host = url.host?.lowercased() ?? ""
+        guard (host == "youtube.com" || host.hasSuffix(".youtube.com")),
+              url.path == "/redirect",
+              let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
+              let rawTarget = components.queryItems?.first(where: { $0.name == "q" })?.value,
+              let targetURL = URL(string: rawTarget),
+              let scheme = targetURL.scheme?.lowercased(),
+              scheme == "http" || scheme == "https" else {
+            return nil
+        }
+        return targetURL
+    }
+
+    private func isInAppHost(_ host: String) -> Bool {
+        return host == "youtube.com"
+            || host.hasSuffix(".youtube.com")
+            || host == "youtu.be"
+            || host == "google.com"
+            || host.hasSuffix(".google.com")
+    }
+
+    private func isExternalOpenableURL(_ url: URL) -> Bool {
+        guard let scheme = url.scheme?.lowercased() else { return false }
+        return scheme == "http" || scheme == "https" || scheme == "mailto"
+    }
+
     // MARK: - WKNavigationDelegate (Prevent Universal Link / Safari PWA hijacking)
     func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
+        let allowPolicy = WKNavigationActionPolicy(rawValue: WKNavigationActionPolicy.allow.rawValue + 2) ?? .allow
+
         guard let url = navigationAction.request.url else {
-            let allowPolicy = WKNavigationActionPolicy(rawValue: WKNavigationActionPolicy.allow.rawValue + 2) ?? .allow
             decisionHandler(allowPolicy)
             return
         }
 
-        // Handle target="_blank" links without targetFrame: keep them in the app
+        if let redirectTarget = extractYouTubeRedirectTarget(from: url) {
+            NSWorkspace.shared.open(redirectTarget)
+            decisionHandler(.cancel)
+            return
+        }
+
+        // Handle target="_blank" links without targetFrame: keep YouTube/Google in app, open external URLs in default browser
         if navigationAction.targetFrame == nil {
             let host = url.host?.lowercased() ?? ""
-            if host.contains("youtube.com") || host.contains("google.com") {
+            if isInAppHost(host) {
                 webView.load(navigationAction.request)
-                decisionHandler(.cancel)
-                return
-            } else {
+            } else if isExternalOpenableURL(url) {
                 NSWorkspace.shared.open(url)
-                decisionHandler(.cancel)
-                return
             }
+            decisionHandler(.cancel)
+            return
         }
 
         // Bypass macOS Universal Links / Safari Web App (PWA) interception:
-        let allowPolicy = WKNavigationActionPolicy(rawValue: WKNavigationActionPolicy.allow.rawValue + 2) ?? .allow
         decisionHandler(allowPolicy)
+    }
+
+    func webViewWebContentProcessDidTerminate(_ webView: WKWebView) {
+        let now = Date()
+        if let lastCrash = lastWebContentCrashDate, now.timeIntervalSince(lastCrash) < 10 {
+            return
+        }
+        lastWebContentCrashDate = now
+        webView.reload()
     }
 
     // MARK: - WKUIDelegate (Popups for Google Login / OAuth)
     func webView(_ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration, for navigationAction: WKNavigationAction, windowFeatures: WKWindowFeatures) -> WKWebView? {
+        if let url = navigationAction.request.url {
+            if let redirectTarget = extractYouTubeRedirectTarget(from: url) {
+                NSWorkspace.shared.open(redirectTarget)
+                return nil
+            }
+            let host = url.host?.lowercased() ?? ""
+            if !host.isEmpty && !isInAppHost(host) && isExternalOpenableURL(url) {
+                NSWorkspace.shared.open(url)
+                return nil
+            }
+        }
+
         let popupRect = NSRect(x: 100, y: 100, width: 500, height: 650)
         let popupWindow = NSWindow(
             contentRect: popupRect,
@@ -91,25 +156,29 @@ class MainViewController: NSViewController, WKUIDelegate, WKNavigationDelegate, 
             defer: false
         )
         popupWindow.title = "Google Sign In"
+        popupWindow.isReleasedWhenClosed = false
         popupWindow.center()
 
-        let popupVC = PopupWebViewController()
+        let popupVC = PopupWebViewController(configuration: configuration)
         popupVC.onLoginFinished = { [weak self] in
             DispatchQueue.main.async {
                 self?.webView.reload()
             }
         }
         popupWindow.contentViewController = popupVC
+        _ = popupVC.view
         popupWindows.append(popupWindow)
 
-        NotificationCenter.default.addObserver(forName: NSWindow.willCloseNotification, object: popupWindow, queue: .main) { [weak self, weak popupWindow] _ in
+        let windowKey = ObjectIdentifier(popupWindow)
+        let observer = NotificationCenter.default.addObserver(forName: NSWindow.willCloseNotification, object: popupWindow, queue: .main) { [weak self, weak popupWindow] _ in
+            if let token = self?.popupWindowObservers.removeValue(forKey: windowKey) {
+                NotificationCenter.default.removeObserver(token)
+            }
             if let target = popupWindow {
-                self?.popupWindows.removeAll { $0 == target }
-                DispatchQueue.main.async {
-                    self?.webView.reload()
-                }
+                self?.popupWindows.removeAll { $0 === target }
             }
         }
+        popupWindowObservers[windowKey] = observer
 
         popupWindow.makeKeyAndOrderFront(nil)
         return popupVC.webView

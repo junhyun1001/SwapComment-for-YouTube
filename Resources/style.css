@@ -1,9 +1,15 @@
 /* SwapComment for YouTube Custom Stylesheet */
 
 /* When on watch page and layout is swapped */
+body[data-yt-sidebar-comments="true"] ytd-watch-flexy[is-two-columns_] #primary {
+    min-width: 0 !important;
+}
+
 body[data-yt-sidebar-comments="true"] #secondary {
-    min-width: 400px !important;
-    max-width: 480px !important;
+    width: clamp(320px, 28vw, 440px) !important;
+    min-width: 320px !important;
+    max-width: 440px !important;
+    flex-shrink: 0 !important;
 }
 
 body[data-yt-sidebar-comments="true"] #secondary #secondary-inner {
@@ -77,6 +83,13 @@ body[data-yt-sidebar-comments="true"] #secondary #comments #header {
     grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)) !important;
     gap: 20px 16px !important;
     width: 100% !important;
+}
+
+#below ytd-watch-next-secondary-results-renderer #contents > *,
+#below #related #contents > * {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
 }
 
 /* Video item card layout (Home-feed style: thumbnail on top, details below) */
