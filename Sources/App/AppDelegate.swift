@@ -94,4 +94,13 @@ class AppDelegate: NSObject, NSApplicationDelegate, AppMenuActionDelegate, ViewM
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
         return true
     }
+
+    func applicationWillTerminate(_ notification: Notification) {
+        if let keyWindow = NSApplication.shared.keyWindow,
+           let controller = windowControllers.first(where: { $0.window === keyWindow }) {
+            controller.saveWindowFrame()
+        } else {
+            windowControllers.last?.saveWindowFrame()
+        }
+    }
 }
