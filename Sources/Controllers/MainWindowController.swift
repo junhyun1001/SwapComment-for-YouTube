@@ -2,8 +2,10 @@ import Cocoa
 
 class MainWindowController: NSWindowController, NSWindowDelegate {
     private static let windowFrameDefaultsKey = "savedMainWindowFrame"
+    private static let minWindowSize = NSSize(width: 640, height: 480)
     let mainViewController = MainViewController()
     var onWindowWillClose: ((MainWindowController) -> Void)?
+    private var saveFrameWorkItem: DispatchWorkItem?
 
     var groupId: String {
         get { window?.tabbingIdentifier ?? "" }
@@ -33,7 +35,7 @@ class MainWindowController: NSWindowController, NSWindowDelegate {
         window.titleVisibility = .hidden
         window.titlebarSeparatorStyle = .none
         window.backgroundColor = NSColor(red: 15/255, green: 15/255, blue: 15/255, alpha: 1.0)
-        window.minSize = NSSize(width: 900, height: 550)
+        window.minSize = Self.minWindowSize
         window.isReleasedWhenClosed = false
         window.tabbingIdentifier = groupId
         window.tabbingMode = .preferred
@@ -41,7 +43,7 @@ class MainWindowController: NSWindowController, NSWindowDelegate {
         self.init(window: window)
         window.contentViewController = mainViewController
         if let savedFrame = Self.loadSavedWindowFrame() {
-            window.setFrame(savedFrame, display: false)
+            window.setFrame(savedFrame, display: true)
         } else {
             window.setContentSize(defaultRect.size)
             window.setFrameOrigin(defaultRect.origin)
@@ -54,7 +56,7 @@ class MainWindowController: NSWindowController, NSWindowDelegate {
             return nil
         }
         let rect = NSRectFromString(raw)
-        guard rect.width >= 900, rect.height >= 550 else {
+        guard rect.width >= minWindowSize.width, rect.height >= minWindowSize.height else {
             return nil
         }
         let targetScreen = NSScreen.screens
@@ -75,18 +77,34 @@ class MainWindowController: NSWindowController, NSWindowDelegate {
     }
 
     func saveWindowFrame() {
+        saveFrameWorkItem?.cancel()
+        saveFrameWorkItem = nil
         guard let window = window, !window.styleMask.contains(.fullScreen) else {
             return
         }
         UserDefaults.standard.set(NSStringFromRect(window.frame), forKey: Self.windowFrameDefaultsKey)
     }
 
+    private func scheduleSaveWindowFrame() {
+        saveFrameWorkItem?.cancel()
+        let item = DispatchWorkItem { [weak self] in
+            self?.saveWindowFrame()
+        }
+        saveFrameWorkItem = item
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.25, execute: item)
+    }
+
     func windowDidMove(_ notification: Notification) {
-        saveWindowFrame()
+        scheduleSaveWindowFrame()
+    }
+
+    func windowDidResize(_ notification: Notification) {
+        scheduleSaveWindowFrame()
     }
 
     func windowDidEndLiveResize(_ notification: Notification) {
         saveWindowFrame()
+        mainViewController.syncLayoutAfterResize()
     }
 
     func windowWillClose(_ notification: Notification) {

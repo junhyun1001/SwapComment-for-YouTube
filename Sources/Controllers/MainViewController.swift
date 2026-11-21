@@ -7,6 +7,7 @@ class MainViewController: NSViewController, WKUIDelegate, WKNavigationDelegate, 
     var popupWindows: [NSWindow] = []
     private var popupWindowObservers: [ObjectIdentifier: NSObjectProtocol] = [:]
     private var lastWebContentCrashDate: Date?
+    private var savedZoomLevel: CGFloat = 1.0
 
     deinit {
         for token in popupWindowObservers.values {
@@ -32,23 +33,55 @@ class MainViewController: NSViewController, WKUIDelegate, WKNavigationDelegate, 
         preferences.setValue(true, forKey: "fullScreenEnabled")
         config.preferences = preferences
 
+        let containerView = NSView(frame: .zero)
+        containerView.autoresizingMask = [.width, .height]
+
         webView = WKWebView(frame: .zero, configuration: config)
+        webView.translatesAutoresizingMaskIntoConstraints = false
         webView.customUserAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Safari/605.1.15"
         webView.allowsBackForwardNavigationGestures = true
         webView.uiDelegate = self
         webView.navigationDelegate = self
 
-        let savedZoom = UserDefaults.standard.double(forKey: Self.pageZoomDefaultsKey)
-        if savedZoom >= 0.5 && savedZoom <= 3.0 {
-            webView.pageZoom = CGFloat(savedZoom)
+        let storedZoom = UserDefaults.standard.double(forKey: Self.pageZoomDefaultsKey)
+        if storedZoom >= 0.5 && storedZoom <= 3.0 {
+            savedZoomLevel = CGFloat(storedZoom)
         }
 
-        self.view = webView
+        containerView.addSubview(webView)
+        NSLayoutConstraint.activate([
+            webView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
+            webView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
+            webView.topAnchor.constraint(equalTo: containerView.topAnchor),
+            webView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor)
+        ])
+
+        self.view = containerView
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
         loadYouTube()
+    }
+
+    override func viewDidAppear() {
+        super.viewDidAppear()
+        if webView.pageZoom != savedZoomLevel {
+            webView.pageZoom = savedZoomLevel
+        }
+        webView.needsLayout = true
+    }
+
+    override func viewDidLayout() {
+        super.viewDidLayout()
+        webView?.needsLayout = true
+    }
+
+    func syncLayoutAfterResize() {
+        guard isViewLoaded else { return }
+        view.layoutSubtreeIfNeeded()
+        webView.needsLayout = true
+        webView.evaluateJavaScript("window.dispatchEvent(new Event('resize'));", completionHandler: nil)
     }
 
     func loadYouTube() {
@@ -214,7 +247,8 @@ class MainViewController: NSViewController, WKUIDelegate, WKNavigationDelegate, 
     }
 
     private func savePageZoom() {
-        UserDefaults.standard.set(Double(webView.pageZoom), forKey: Self.pageZoomDefaultsKey)
+        savedZoomLevel = webView.pageZoom
+        UserDefaults.standard.set(Double(savedZoomLevel), forKey: Self.pageZoomDefaultsKey)
     }
 
     @objc func zoomActual() {
