@@ -2,6 +2,7 @@ import Cocoa
 import WebKit
 
 class MainViewController: NSViewController, WKUIDelegate, WKNavigationDelegate, WKScriptMessageHandler, ViewMenuActionDelegate {
+    private static let pageZoomDefaultsKey = "savedPageZoom"
     var webView: WKWebView!
     var popupWindows: [NSWindow] = []
     private var popupWindowObservers: [ObjectIdentifier: NSObjectProtocol] = [:]
@@ -36,6 +37,11 @@ class MainViewController: NSViewController, WKUIDelegate, WKNavigationDelegate, 
         webView.allowsBackForwardNavigationGestures = true
         webView.uiDelegate = self
         webView.navigationDelegate = self
+
+        let savedZoom = UserDefaults.standard.double(forKey: Self.pageZoomDefaultsKey)
+        if savedZoom >= 0.5 && savedZoom <= 3.0 {
+            webView.pageZoom = CGFloat(savedZoom)
+        }
 
         self.view = webView
     }
@@ -207,16 +213,23 @@ class MainViewController: NSViewController, WKUIDelegate, WKNavigationDelegate, 
         }
     }
 
+    private func savePageZoom() {
+        UserDefaults.standard.set(Double(webView.pageZoom), forKey: Self.pageZoomDefaultsKey)
+    }
+
     @objc func zoomActual() {
         webView.pageZoom = 1.0
+        savePageZoom()
     }
 
     @objc func zoomIn() {
-        webView.pageZoom += 0.1
+        webView.pageZoom = min(3.0, webView.pageZoom + 0.1)
+        savePageZoom()
     }
 
     @objc func zoomOut() {
         webView.pageZoom = max(0.5, webView.pageZoom - 0.1)
+        savePageZoom()
     }
 
     @objc func toggleFullScreen() {

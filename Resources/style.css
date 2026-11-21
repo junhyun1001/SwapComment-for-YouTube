@@ -52,6 +52,29 @@ body[data-yt-sidebar-comments="true"] #secondary #comments #header {
     margin-bottom: 12px !important;
 }
 
+/* Engagement panel (Ask Gemini, Transcript, Chapters, etc.) occupies sidebar position when open */
+body[data-yt-sidebar-comments="true"] #secondary #secondary-inner:has(#panels [visibility="ENGAGEMENT_PANEL_VISIBILITY_EXPANDED"]) #comments,
+body[data-yt-sidebar-comments="true"][data-yt-panel-expanded="true"] #secondary #secondary-inner #comments {
+    display: none !important;
+}
+
+body[data-yt-sidebar-comments="true"] #secondary #secondary-inner:has(#panels [visibility="ENGAGEMENT_PANEL_VISIBILITY_EXPANDED"]) #panels,
+body[data-yt-sidebar-comments="true"][data-yt-panel-expanded="true"] #secondary #secondary-inner #panels {
+    display: flex !important;
+    flex-direction: column !important;
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    max-height: calc(100vh - 75px) !important;
+    width: 100% !important;
+}
+
+body[data-yt-sidebar-comments="true"] #secondary #secondary-inner #panels ytd-engagement-panel-section-list-renderer[visibility="ENGAGEMENT_PANEL_VISIBILITY_EXPANDED"] {
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    max-height: 100% !important;
+    width: 100% !important;
+}
+
 /* --- Related videos placed below the player --- */
 #below ytd-watch-next-secondary-results-renderer,
 #below #related {

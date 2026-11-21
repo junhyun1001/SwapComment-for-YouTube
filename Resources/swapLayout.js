@@ -6,9 +6,64 @@
     let isSwapping = false;
     let scheduledTimer = null;
     let lastTriggeredUrl = '';
+    let savedSidebarScrollTop = 0;
 
     function isWatchPage() {
         return window.location.pathname.startsWith('/watch');
+    }
+
+    function hasExpandedPanel(secondaryInner) {
+        return Boolean(
+            secondaryInner &&
+            secondaryInner.querySelector('#panels [visibility="ENGAGEMENT_PANEL_VISIBILITY_EXPANDED"]')
+        );
+    }
+
+    function syncPanelState(secondaryInner) {
+        if (!document.body) return;
+
+        const isSidebar = document.body.getAttribute('data-yt-sidebar-comments') === 'true';
+        const expanded = isSidebar && hasExpandedPanel(secondaryInner);
+        const wasExpanded = document.body.getAttribute('data-yt-panel-expanded') === 'true';
+
+        if (expanded === wasExpanded) {
+            return;
+        }
+
+        if (expanded) {
+            if (secondaryInner) {
+                savedSidebarScrollTop = secondaryInner.scrollTop;
+                secondaryInner.scrollTop = 0;
+            }
+            document.body.setAttribute('data-yt-panel-expanded', 'true');
+        } else {
+            document.body.removeAttribute('data-yt-panel-expanded');
+            if (secondaryInner && savedSidebarScrollTop > 0) {
+                const targetScrollTop = savedSidebarScrollTop;
+                savedSidebarScrollTop = 0;
+                requestAnimationFrame(() => {
+                    secondaryInner.scrollTop = targetScrollTop;
+                });
+            }
+        }
+    }
+
+    function isCommentsPlacedInSidebar(secondaryInner, panels, comments) {
+        if (!secondaryInner.contains(comments)) {
+            return false;
+        }
+        if (panels && secondaryInner.contains(panels)) {
+            return Boolean(panels.compareDocumentPosition(comments) & Node.DOCUMENT_POSITION_FOLLOWING);
+        }
+        return true;
+    }
+
+    function placeCommentsInSidebar(secondaryInner, panels, comments) {
+        if (panels && secondaryInner.contains(panels)) {
+            secondaryInner.insertBefore(comments, panels.nextSibling);
+        } else {
+            secondaryInner.prepend(comments);
+        }
     }
 
     function triggerCommentLoading(commentsElem) {
@@ -44,6 +99,8 @@
 
         if (!isWatchPage()) {
             document.body.removeAttribute('data-yt-sidebar-comments');
+            document.body.removeAttribute('data-yt-panel-expanded');
+            savedSidebarScrollTop = 0;
             lastTriggeredUrl = '';
             return;
         }
@@ -54,6 +111,7 @@
         const root = flexy || document;
         const secondary = root.querySelector('#secondary');
         const secondaryInner = root.querySelector('#secondary #secondary-inner');
+        const panels = secondaryInner ? secondaryInner.querySelector('#panels') : null;
         const below = root.querySelector('#below');
         const comments = root.querySelector('#comments') || root.querySelector('ytd-comments');
         const relatedRenderer = root.querySelector('ytd-watch-next-secondary-results-renderer') || root.querySelector('#related');
@@ -69,7 +127,7 @@
         let needsCommentsMove = false;
         if (comments) {
             if (useSidebar) {
-                needsCommentsMove = !secondaryInner.contains(comments);
+                needsCommentsMove = !isCommentsPlacedInSidebar(secondaryInner, panels, comments);
             } else {
                 // In narrow/1-column mode, comments belong in #below above relatedRenderer
                 const inBelow = below.contains(comments);
@@ -81,7 +139,8 @@
 
         const hasSidebarAttr = document.body.getAttribute('data-yt-sidebar-comments') === 'true';
         if (!needsRelatedMove && !needsCommentsMove && hasSidebarAttr === useSidebar) {
-            if (useSidebar && comments) {
+            syncPanelState(secondaryInner);
+            if (useSidebar && comments && !hasExpandedPanel(secondaryInner)) {
                 scheduleCommentLoad(comments);
             }
             return;
@@ -94,6 +153,7 @@
                 document.body.setAttribute('data-yt-sidebar-comments', 'true');
             } else {
                 document.body.removeAttribute('data-yt-sidebar-comments');
+                document.body.removeAttribute('data-yt-panel-expanded');
             }
 
             // 1. Keep related videos in #below (after video metadata/comments)
@@ -101,13 +161,15 @@
                 below.appendChild(relatedRenderer);
             }
 
-            // 2. Place comments in #secondary-inner (2-col) or top of #below above relatedRenderer (1-col)
+            // 2. Place comments after #panels in #secondary-inner (2-col) or top of #below above relatedRenderer (1-col)
             if (comments) {
                 if (useSidebar) {
-                    if (!secondaryInner.contains(comments)) {
-                        secondaryInner.prepend(comments);
+                    if (!isCommentsPlacedInSidebar(secondaryInner, panels, comments)) {
+                        placeCommentsInSidebar(secondaryInner, panels, comments);
                     }
-                    scheduleCommentLoad(comments);
+                    if (!hasExpandedPanel(secondaryInner)) {
+                        scheduleCommentLoad(comments);
+                    }
                 } else {
                     if (relatedRenderer && below.contains(relatedRenderer)) {
                         const alreadyBefore = below.contains(comments) &&
@@ -120,6 +182,8 @@
                     }
                 }
             }
+
+            syncPanelState(secondaryInner);
         } catch (e) {
             console.error('[SwapComment for YouTube] Error swapping layout:', e);
         } finally {
@@ -142,25 +206,37 @@
             observer.disconnect();
         }
 
-        observer = new MutationObserver(() => {
+        observer = new MutationObserver((mutations) => {
             if (!isWatchPage()) {
-                if (document.body && document.body.hasAttribute('data-yt-sidebar-comments')) {
+                if (document.body) {
                     document.body.removeAttribute('data-yt-sidebar-comments');
+                    document.body.removeAttribute('data-yt-panel-expanded');
                 }
                 return;
             }
+
+            const hasVisibilityChange = mutations.some((m) => m.type === 'attributes' && m.attributeName === 'visibility');
+            if (hasVisibilityChange) {
+                const secondaryInner = document.querySelector('ytd-watch-flexy #secondary #secondary-inner') ||
+                    document.querySelector('#secondary #secondary-inner');
+                syncPanelState(secondaryInner);
+            }
+
             scheduleApply();
         });
 
         observer.observe(document.documentElement, {
             childList: true,
-            subtree: true
+            subtree: true,
+            attributes: true,
+            attributeFilter: ['visibility']
         });
     }
 
     // YouTube SPA navigation & viewport resize events
     window.addEventListener('yt-navigate-finish', () => {
         lastTriggeredUrl = '';
+        savedSidebarScrollTop = 0;
         scheduleApply();
     });
 
